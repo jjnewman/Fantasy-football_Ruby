@@ -44,11 +44,7 @@ var budget = 50
 var funds_remaining = budget - total_cost
 var max_players_per_club = 5
 var player
-goalkeeperArray = []
-defenderArray = []
-midfielderArray = []
-forwardArray = []
-clubArray = []
+goalkeeperArray = []; defenderArray = []; midfielderArray = []; forwardArray = []; clubArray = []
 
 for (var game_id = 1; game_id <= 40; game_id++) {
   $.ajax({
@@ -67,6 +63,59 @@ populateTeam('.defenders', defenderArray, '.def', 'DEF: ', 5)
 populateTeam('.midfielders', midfielderArray, '.mid', 'MID: ', 5)
 populateTeam('.forwards', forwardArray, '.fwd', 'FWD: ', 3)
 
+function checkClubNumbers(data){
+  var club_counts = {};
+  clubArray.push(data.team_name)
+  for (i = 0; i < clubArray.length; i++) {
+    club_counts[clubArray[i]] = 1 + (club_counts[clubArray[i]] || 0);
+        if (club_counts[clubArray[i]] > max_players_per_club){
+           alert("max 3 players from any club!");
+           return;
+           }
+    }
+}
+
+function checkAlreadySelected(array, data){
+  if(array.indexOf(data.web_name) > -1){
+    alert("Already selected!");
+   return false;
+  } else {
+    return true;
+   }
+}
+
+function checkPositionNumbers(array, max){
+   if(array.length >= max){
+    alert("Please remove a player first");
+    return false;
+     } else {
+    return true;
+   }
+}
+
+function checkCost(total, newPlayer, budget){
+   if(total + ((newPlayer.now_cost)/10) > budget){
+    alert("Insufficient funds!");
+    return false;
+     } else {
+    return true;
+   }
+}
+
+// function addPlayer(player, data, array, positionClass, positionCode){
+//     var player = new Object();
+//     player.game_id = data.id;
+//     player.surname = data.web_name;
+//     player.club = data.team_name;
+//     player.cost = data.now_cost / 10;
+//     player.position = data.type_name;
+//     array.push(player.surname);
+
+//     $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
+  
+// };
+
+
 function populateTeam(selectorClass, positionArray, positionClass, positionCode, positionMax) {
 
 $(selectorClass).change(function(){
@@ -81,42 +130,37 @@ $(selectorClass).change(function(){
     }).done(function(data) {
       if(data.web_name == surname) {
 
-          var club_counts = {};
-            clubArray.push(data.team_name)
-              for (i = 0; i < clubArray.length; i++) {
-                club_counts[clubArray[i]] = 1 + (club_counts[clubArray[i]] || 0);
-                      if (club_counts[clubArray[i]] > max_players_per_club){
-                       alert("max 3 players from any club!");
-                       return;
-                     }
-                  }
-        if(positionArray.length < positionMax && (total_cost + (data.now_cost/10) < budget)){
+        if(checkCost(total_cost, data, budget) && checkAlreadySelected(positionArray, data) && checkPositionNumbers(positionArray, positionMax)){
 
-            if(positionArray.indexOf(data.web_name) > -1){
-              alert("Already selected!");
-             return;
-              }
+          // addPlayer(player, data, positionArray, positionClass, positionCode)
 
-            var player = new Object();
-            player.game_id = data.id;
-            player.surname = data.web_name;
-            player.club = data.team_name;
-            player.cost = data.now_cost / 10;
-            player.position = data.type_name;
-            positionArray.push(player.surname)
-            total_cost += player.cost
-            console.log(positionArray)
+    var player = new Object();
+    player.game_id = data.id;
+    player.surname = data.web_name;
+    player.club = data.team_name;
+    player.cost = data.now_cost / 10;
+    player.position = data.type_name;
+    positionArray.push(player.surname);
 
-          $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
+    $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
+  
 
+          total_cost += player.cost;
+          funds_remaining = budget - total_cost;
+          $('.cost').text(funds_remaining + 'm');
+
+
+// };
        $("#" + player.surname + "").click(function() {
             $(this).remove();
               positionArray.splice(positionArray.indexOf(player.surname),1);
               clubArray.splice(clubArray.indexOf(player.club),1);
-              total_cost = total_cost - player.cost
-         $('.cost').text(total_cost + 'm');
-      });
-          $('.cost').text(total_cost + 'm');
+              total_cost -= player.cost
+              funds_remaining = budget - total_cost;
+            $('.cost').text(funds_remaining + 'm');
+
+        });
+
           }
         }
     });
