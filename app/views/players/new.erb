@@ -1,0 +1,130 @@
+
+  <!-- <audio controls autoplay>
+  <source src="arsenal.mp3" type="audio/mpeg">
+</audio> -->
+
+  <h1>Fantasy Football</h1>
+
+  <div class="styled-select">
+    <form action="/players" method="post">    
+   <h3>Goalkeepers</h3>
+    <select class="goalkeepers" name="gk" >
+      <option disabled="true" >Please choose</option>
+    </select>
+      <h3>Defenders</h3>
+    <select class="defenders">
+      <option disabled="true">Please choose</option>
+    </select>
+      <h3>Midfielders</h3>
+    <select class="midfielders">
+      <option disabled="true">Please choose</option>
+    </select>
+      <h3>Forwards</h3>
+    <select class="forwards">
+      <option disabled="true">Please choose</option>
+    </select>
+    </form>
+  </div>
+
+   <div class ="gk" ></div>
+   <div class ="def"></div>
+   <div class ="mid"></div>
+   <div class ="fwd"></div>
+   <div class="cost"></div>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+
+<script> 
+
+var player
+var total_cost  = 0
+var budget = 50
+var funds_remaining = budget - total_cost
+var max_players_per_club = 5
+var player
+goalkeeperArray = []
+defenderArray = []
+midfielderArray = []
+forwardArray = []
+clubArray = []
+
+for (var game_id = 1; game_id <= 40; game_id++) {
+  $.ajax({
+    dataType: 'json',
+    url: "http://fantasy.premierleague.com/web/api/elements/" + game_id + "/",
+    }).done(function(data) {
+        var str = "." + data.type_name.toLowerCase() + "s"
+        $(str).append(
+          $('<option></option>').val(data.type_name).html(data.web_name + " (" + data.team_name + ") " + data.now_cost/10 + "m"));
+
+    });
+};
+
+populateTeam('.goalkeepers', goalkeeperArray, '.gk', 'GK: ', 2)
+populateTeam('.defenders', defenderArray, '.def', 'DEF: ', 5)
+populateTeam('.midfielders', midfielderArray, '.mid', 'MID: ', 5)
+populateTeam('.forwards', forwardArray, '.fwd', 'FWD: ', 3)
+
+function populateTeam(selectorClass, positionArray, positionClass, positionCode, positionMax) {
+
+$(selectorClass).change(function(){
+
+  var selection = $('option:selected', $(this)).text();
+  var surname = selection.split(" ", 1)
+
+  for (var game_id = 1; game_id <= 40; game_id++) {
+  $.ajax({
+    dataType: 'json',
+    url: "http://fantasy.premierleague.com/web/api/elements/" + game_id + "/",
+    }).done(function(data) {
+      if(data.web_name == surname) {
+
+          var club_counts = {};
+            clubArray.push(data.team_name)
+              for (i = 0; i < clubArray.length; i++) {
+                club_counts[clubArray[i]] = 1 + (club_counts[clubArray[i]] || 0);
+                      if (club_counts[clubArray[i]] > max_players_per_club){
+                       alert("max 3 players from any club!");
+                       return;
+                     }
+                  }
+        if(positionArray.length < positionMax && (total_cost + (data.now_cost/10) < budget)){
+
+            if(positionArray.indexOf(data.web_name) > -1){
+              alert("Already selected!");
+             return;
+              }
+
+            var player = new Object();
+            player.game_id = data.id;
+            player.surname = data.web_name;
+            player.club = data.team_name;
+            player.cost = data.now_cost / 10;
+            player.position = data.type_name;
+            positionArray.push(player.surname)
+            total_cost += player.cost
+            console.log(positionArray)
+
+          $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
+
+       $("#" + player.surname + "").click(function() {
+            $(this).remove();
+              positionArray.splice(positionArray.indexOf(player.surname),1);
+              clubArray.splice(clubArray.indexOf(player.club),1);
+              total_cost = total_cost - player.cost
+         $('.cost').text(total_cost + 'm');
+      });
+          $('.cost').text(total_cost + 'm');
+          }
+        }
+    });
+ };
+});
+};
+
+
+</script>
+
+

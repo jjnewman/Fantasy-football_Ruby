@@ -1,0 +1,93 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+header{}
+
+body{
+  background-image: url('http://www.grassform.co.uk/wp-content/uploads/stock-photo-detail-of-soccer-field-grass-in-a-stadium-102104047.jpg');
+  background-repeat: no-repeat;
+  background-size: 1500px 900px;
+  font-family: courier;
+}
+
+select {
+  position: relative;
+}
+
+h1{
+  text-align: center;
+}
+
+.gk{
+  position: absolute;
+  top: 120px;
+  left: 35%;
+  font-family: courier;
+  font-size: 30px;
+}
+
+.def{
+  position: absolute;
+  top: 220px;
+  left: 35%;
+  float: right;
+  font-family: courier;
+  font-size: 30px;
+}
+
+.mid{
+  position: absolute;
+  top: 420px;
+  left: 35%;
+  float: right;
+  font-family: courier;
+  font-size: 30px;
+}
+
+.fwd{
+   position: absolute;
+  top: 620px;
+  left: 35%;
+  float: right;
+  font-family: courier;
+  font-size: 30px;
+}
+
+.cost{
+  position: absolute;
+  margin-top: 10%;
+  margin-left: 80%;
+  font-size: 20px;
+  font-size: 26px;
+  color: blue;
+}
+
+.pointer{
+  position: absolute;
+  margin-top: 8%;
+  margin-left: 80%;
+  font-size: 20px;
+  font-size: 26px;
+  color: blue;
+}
+
+.styled-select select {
+
+  background: black;
+  width: 25%;
+  padding: 5px;
+  font-size: 16px;
+  line-height: 1;
+  border: 0;
+  border-radius: 20px ;
+  height: 34px;
+  -webkit-appearance: none;
+  color: white;
+  font-family: courier;
+}
+
+/*audio{
+  display: none;
+}*/
