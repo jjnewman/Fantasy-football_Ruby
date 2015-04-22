@@ -1,8 +1,3 @@
-
-  <!-- <audio controls autoplay>
-  <source src="arsenal.mp3" type="audio/mpeg">
-</audio> -->
-
   <h1>Fantasy Football</h1>
 
   <div class="styled-select">
@@ -25,19 +20,14 @@
     </select>
     </form>
   </div>
-
    <div class ="gk" ></div>
    <div class ="def"></div>
    <div class ="mid"></div>
    <div class ="fwd"></div>
    <div class="cost"></div>
 
-
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-
-
 <script> 
-
 var player
 var total_cost  = 0
 var budget = 50
@@ -53,8 +43,7 @@ for (var game_id = 1; game_id <= 40; game_id++) {
     }).done(function(data) {
         var str = "." + data.type_name.toLowerCase() + "s"
         $(str).append(
-          $('<option></option>').val(data.type_name).html(data.web_name + " (" + data.team_name + ") " + data.now_cost/10 + "m"));
-
+          $('<option></option>').val(data.type_name).html(data.web_name + " (" + data.team_name + ") " + data                   .now_cost/10 + "m"));
     });
 };
 
@@ -68,11 +57,11 @@ function checkClubNumbers(data){
   clubArray.push(data.team_name)
   for (i = 0; i < clubArray.length; i++) {
     club_counts[clubArray[i]] = 1 + (club_counts[clubArray[i]] || 0);
-        if (club_counts[clubArray[i]] > max_players_per_club){
-           alert("max 3 players from any club!");
-           return;
-           }
+    if (club_counts[clubArray[i]] > max_players_per_club){
+      alert("max 3 players from any club!");
+      return;
     }
+  }
 }
 
 function checkAlreadySelected(array, data){
@@ -102,73 +91,41 @@ function checkCost(total, newPlayer, budget){
    }
 }
 
-// function addPlayer(player, data, array, positionClass, positionCode){
-//     var player = new Object();
-//     player.game_id = data.id;
-//     player.surname = data.web_name;
-//     player.club = data.team_name;
-//     player.cost = data.now_cost / 10;
-//     player.position = data.type_name;
-//     array.push(player.surname);
-
-//     $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
-  
-// };
-
-
 function populateTeam(selectorClass, positionArray, positionClass, positionCode, positionMax) {
+  $(selectorClass).change(function(){
+    var selection = $('option:selected', $(this)).text();
+    var surname = selection.split(" ", 1)
+    for (var game_id = 1; game_id <= 40; game_id++) {
+    $.ajax({
+      dataType: 'json',
+      url: "http://fantasy.premierleague.com/web/api/elements/" + game_id + "/",
+      }).done(function(data) {
+        if(data.web_name == surname) {
+        if(checkCost(total_cost, data, budget) && checkAlreadySelected(positionArray, data) && checkPositionNumbers             (positionArray, positionMax)){
+          var player = new Object();
+          player.game_id = data.id;
+          player.surname = data.web_name;
+          player.club = data.team_name;
+          player.cost = data.now_cost / 10;
+          player.position = data.type_name;
+          positionArray.push(player.surname);
 
-$(selectorClass).change(function(){
-
-  var selection = $('option:selected', $(this)).text();
-  var surname = selection.split(" ", 1)
-
-  for (var game_id = 1; game_id <= 40; game_id++) {
-  $.ajax({
-    dataType: 'json',
-    url: "http://fantasy.premierleague.com/web/api/elements/" + game_id + "/",
-    }).done(function(data) {
-      if(data.web_name == surname) {
-
-        if(checkCost(total_cost, data, budget) && checkAlreadySelected(positionArray, data) && checkPositionNumbers(positionArray, positionMax)){
-
-          // addPlayer(player, data, positionArray, positionClass, positionCode)
-
-    var player = new Object();
-    player.game_id = data.id;
-    player.surname = data.web_name;
-    player.club = data.team_name;
-    player.cost = data.now_cost / 10;
-    player.position = data.type_name;
-    positionArray.push(player.surname);
-
-    $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
-  
-
+          $(positionClass).append('<div id=' + player.surname + '>' + positionCode + player.surname + " (" + player.club + ") £" + player.cost + "m" + '</div>' );
           total_cost += player.cost;
           funds_remaining = budget - total_cost;
           $('.cost').text(funds_remaining + 'm');
-
-
-// };
-       $("#" + player.surname + "").click(function() {
+          $("#" + player.surname + "").click(function() {
             $(this).remove();
               positionArray.splice(positionArray.indexOf(player.surname),1);
               clubArray.splice(clubArray.indexOf(player.club),1);
               total_cost -= player.cost
               funds_remaining = budget - total_cost;
             $('.cost').text(funds_remaining + 'm');
-
-        });
-
+          });
           }
         }
-    });
- };
-});
+      });
+    };
+  });
 };
-
-
 </script>
-
-
