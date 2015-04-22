@@ -2,8 +2,6 @@ class Player
 
   include DataMapper::Resource
 
-  # has n, :tags, :through => Resource
-
   property :id,           Serial
   property :game_id,      Integer 
   property :surname,      String
